@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
+    <script src="../assets/js/index.js"></script>
+
+</head>
+<body>
+    <div id="header">
+        e-Wall
+    </div>
+
+    <div id="user_details">
+        <p>Welcome <%= CURRENT_USER.first_name %> ! | Logout</p>
+    </div>
+
+    <div id="post_message">
+        <form action="/messages/create" id="post_message_form" method="post" data-is-processing="0">
+            <label for="">Post a message</label>
+            <br>
+            <textarea name="message" id="textarea_message" cols="30" rows="10"></textarea>
+            <br>
+            <input type="submit" value="Post">
+        </form>
+    </div>
+
+    <hr>
+
+    <div id="message_list">
+
+        <% 
+
+            if(DATA?.messages){
+                for(let index = 0; index < DATA?.messages.length; index++){ 
+                    let current_message= DATA.messages[index];
+
+        %>
+        
+            <div class="message_item" data-message-item="<%= current_message.message_id %>">
+                <p><%= current_message.message_author_name %> - <%= current_message.message_created_at %></p>
+                <p>
+                    <%- current_message.content %>
+
+                    <%
+                        if(CURRENT_USER.id === current_message.message_author_id &&
+                        (( Math.floor(new Date() - new Date(current_message.message_created_at)) / 1000 ) / 60) > 30
+
+                        ){ %>
+                    
+                            <span>
+                                <button class="delete_message">X</button>
+                            </span>
+
+                    <%
+                        }
+                    
+                    %>
+
+                </p>
+
+
+                <br>
+                <br>
+                
+                <div class="comment_list">
+
+                    <% 
+                        if(current_message.comments){
+                            for(let cindex = 0; cindex < current_message.comments.length; cindex++){
+                                let current_comment = current_message.comments[cindex];
+
+                    %>
+
+                        <div class="comment_item" data-comment-item="<%= current_comment.comment_id %>">
+                            <p><%= current_comment.comment_author_name %> - <%= current_comment.comment_created_at %></p>
+                            <p>
+
+                                <%- current_comment.content %>
+
+                                <%
+                                    if(CURRENT_USER.id === current_comment.comment_author_id &&
+                                        (( Math.floor(new Date() - new Date(current_comment.comment_created_at)) / 1000 ) / 60) > 30
+                                    
+                                    ){ %>
+                                
+                                        <span>
+                                            <button class="delete_comment">X</button>
+                                        </span>
+            
+                                <%
+                                    }
+                                
+                                %>
+                            </p>
+                        </div>
+
+
+                    <%
+                            }
+                        }
+                    
+                    %>
+
+
+                </div>
+
+                <textarea name="comment" class="textarea_comment" cols="30" rows="10"></textarea>
+                <br>
+                <input type="submit" value="Comment" class="comment_submit">
+
+                <hr>
+                <hr>
+            </div>
+
+
+        <%
+                }
+            }
+        
+        
+        %>
+
+
+    </div>
+
+    <div>
+        <form action="/comments/create" id="comment_form" data-is-processing="0">
+            <input type="hidden" name="message_id" id="message_id_input">
+            <input type="hidden" name="comment" id="comment_input">
+        </form>
+        <form action="/messages/delete" id="delete_message_form" data-is-processing="0">
+            <input type="hidden" name="message_id" id="message_id_input">
+        </form>
+        <form action="/comments/delete" id="delete_comment_form" data-is-processing="0">
+            <input type="hidden" name="comment_id" id="comment_id_input">
+        </form>
+    </div>
+
+</body>
+</html>
